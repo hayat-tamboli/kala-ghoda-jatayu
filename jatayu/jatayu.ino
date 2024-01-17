@@ -1,115 +1,160 @@
-// For single motor instance
+// // // For single motor instance
 #include <L298N.h>
 
-const int LEDpin = 13;
-//const int motorPin = 5;
-const int photoPIN1 = A0;
-const int photoPIN2 = A1;
-const int photoPIN3 = A2;
-int motorPin1 = 5;  // Connect to IN1 on the motor driver
-int motorPin2 = 6;  // Connect to IN2 on the motor driver
-int enablePin = 4;  // Connect to ENA on the motor driver
+// motor & L298N pins
 
-L298N motor1(enablePin, motorPin1, motorPin2);
-//L298N motor2(enablePin2, motorPin3, motorPin4);
-bool direction = 0;  // 0 = up , 1 = down
+int m1Pin1 = 50;       // Connect to IN1 on the motor driver
+int m1Pin2 = 48;       // Connect to IN2 on the motor driver
+int m1enablePin = 52;  // Connect to ENA on the motor driver
+
+// int m2Pin1 = 3;  // Connect to IN3 on the motor driver
+// int m2Pin2 = 4;  // Connect to IN4 on the motor driver
+// int m2enablePin = 2;  // Connect to ENB on the motor driver
+
+// ultrasonic sensor pins
+
+const int u1trigPin = 22;
+const int u1echoPin = 23;
+const int u2trigPin = 24;
+const int u2echoPin = 25;
+const int u3trigPin = 26;
+const int u3echoPin = 27;
+
+L298N motor1(m1enablePin, m1Pin1, m1Pin2);
+// L298N motor2(m2enablePin, m2Pin1, m2Pin2);
+
+// used for full drop and full pull
+bool direction = 0;  // 0 = blocks are up , 1 = blocks are down now
+long timeToPickUp = 5000;
+long timeToDropDown = 5000;
 
 void setup() {
 
   Serial.begin(9600);
 
-  pinMode(motorPin1, OUTPUT);
-  pinMode(motorPin2, OUTPUT);
-  pinMode(enablePin, OUTPUT);
+  // connections to ultrasonic sensors
+  pinMode(u1trigPin, OUTPUT);
+  pinMode(u1echoPin, INPUT);
+  pinMode(u2trigPin, OUTPUT);
+  pinMode(u2echoPin, INPUT);
+  pinMode(u3trigPin, OUTPUT);
+  pinMode(u3echoPin, INPUT);
 
 
-
-  pinMode(photoPIN1, INPUT);
-  pinMode(photoPIN2, INPUT);
-  pinMode(photoPIN3, INPUT);
+  // connections to motor
+  pinMode(m1Pin1, OUTPUT);
+  pinMode(m1Pin2, OUTPUT);
+  pinMode(m1enablePin, OUTPUT);
+  //   // pinMode(m2Pin1, OUTPUT);
+  //   // pinMode(m2Pin2, OUTPUT);
+  //   // pinMode(m2enablePin, OUTPUT);
   // Set initial speed
-  motor1.setSpeed(0);
-  // motor1.stop();
-  motor1.forward();
+  motor1.setSpeed(100);
+  //   // motor2.setSpeed(100);
 
-
-  // pinMode(motorPin, OUTPUT);
-  pinMode(LEDpin, OUTPUT);
+  motor1.stop();
+  //   // motor2.stop();
 }
+
 void loop() {
-  motor1.forward();
-  // reading the sensor:
-  int sensorStatus1 = analogRead(photoPIN1);
-  int sensorStatus2 = analogRead(photoPIN2);
-  int sensorStatus3 = analogRead(photoPIN3);
-  // status of the sensor is < 200
 
-  // Serial.println(motor_speed);
-  Serial.println(sensorStatus1);
-  if (sensorStatus1 < 700) {
-    Serial.print("yesssss");
-    Serial.println("LED is ON, status of sensor is DARK");
-    //motor1.setSpeed(255);
-    motor1.backward();
-    delay(1000);
+  if (direction == 0) {
+    if (isPersonBlocking()) {
+      dropBlocks();
+    }
   }
-  // Serial.println(sensorStatus2);
-  // Serial.println(sensorStatus3);
-  //if (((sensorStatus1 <200) && (sensorStatus2 <200)) || ((sensorStatus1 <200) && (sensorStatus3 <200)) || ((sensorStatus2 <200) && (sensorStatus3 <200)) )
-  // if ((sensorStatus1 <700))// || (sensorStatus2 <700)) || (sensorStatus3 <500))
-  // //if (sensorStatus2 <1200)
-  // {
-  //   direction = 1;
-  //   Serial.println("LED is ON, status of sensor is DARK");
-  //   //motor1.setSpeed(255);
-  //   motor1.backward();
-  //   //printSomeInfo();
-  //   digitalWrite(LEDpin, HIGH); // LED is ON
-  //   delay(12000);
-
-  //   motor1.stop();
-  //   // delay(500);
-  //   direction = 0;
-  //   // motor1.backward();
-  //   delay(10000);
-  // }
-  // else if (sensorStatus3 <200)
-  // {
-  //   Serial.println("LED is ON, status of sensor is DARK");
-  //   motor1.backward();
-  //   motor1.setSpeed(255);
-  //   delay(1000);
-  //   //motor2.backward();
-  //   //delay(5000);
-  //   //motor2.stop();
-  //   //printSomeInfo();
-  // }
-
-  // else
-  // {
-  //   // digitalWrite(motorPin1, LOW);
-  //  //digitalWrite(motorPin2, HIGH);
-  //  if(direction == 0)
-  //  {
-
-  //  }
-  //  motor1.forward();
-  //   digitalWrite(LEDpin, LOW);
-  //   Serial.println("*");
-  //   //motor1.setSpeed(10);
-  //   //printSomeInfo();
-  //   // delay(1000);
-  //   // motor1.stop();
-  //   //motor2.stop();
-  // }
-  // analogWrite(enablePin, motor_speed);
+  if (direction == 1) {
+    if (!isPersonBlocking())
+    {
+      Serial.println("waiting for 10 secs");
+      delay(10000);
+      pullBlocks();
+    }
+  }
 }
 
-// void printSomeInfo()
-// {
-//   delay(2000);
-//   Serial.print("Motor is moving = ");
-//   Serial.print(motor1.isMoving());
-//   Serial.print(" at speed = ");
-//  // Serial.println(motor1.getSpeed());
-// }
+void dropBlocks() {
+  Serial.println("Throwing the blocks down");
+  motor1.backward();
+  delay(timeToPickUp);
+  motor1.stop();
+  direction = 1;
+}
+void pullBlocks() {
+  Serial.println("picking up the blocks");
+  motor1.forward();
+  delay(timeToDropDown);
+  motor1.stop();
+  direction = 0;
+}
+
+int getU1Distance()
+{
+  digitalWrite(u1trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(u1trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(u1trigPin, LOW);
+
+  long duration = pulseIn(u1echoPin, HIGH);
+  int distance = duration * 0.034 / 2;
+  Serial.print("Distance 1 🎉 : ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  return distance;
+}
+
+int getU2Distance()
+{
+  digitalWrite(u2trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(u2trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(u2trigPin, LOW);
+
+  long duration = pulseIn(u2echoPin, HIGH);
+  int distance = duration * 0.034 / 2;
+  Serial.print("Distance 2 🥲: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  return distance;
+}
+
+int getU3Distance()
+{
+  digitalWrite(u3trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(u3trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(u3trigPin, LOW);
+
+  long duration = pulseIn(u3echoPin, HIGH);
+  int distance = duration * 0.034 / 2;
+  Serial.print("Distance 3 🪨: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  return distance;
+}
+
+bool isPersonBlocking()
+{
+  int dist1 = getU1Distance();
+  int dist2 = getU2Distance();
+  int dist3 = getU3Distance();
+  if(dist1<100)
+  {
+    return true;
+  }
+  if(dist2<100)
+  {
+    return true;
+  }
+  if(dist3<100)
+  {
+    return true;
+  }
+  return false;
+}
