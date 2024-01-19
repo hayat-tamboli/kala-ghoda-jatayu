@@ -19,18 +19,18 @@ const int u2trigPin = 24;
 const int u2echoPin = 25;
 const int u3trigPin = 26;
 const int u3echoPin = 27;
-const int u4trigPin = 28;
-const int u4echoPin = 29;
-const int u5trigPin = 30;
-const int u5echoPin = 31;
+// const int u4trigPin = 28;
+// const int u4echoPin = 29;
+// const int u5trigPin = 30;
+// const int u5echoPin = 31;
 
 L298N motor1(m1enablePin, m1Pin1, m1Pin2);
 L298N motor2(m2enablePin, m2Pin1, m2Pin2);
 
 // used for full drop and full pull
 bool direction = 0;  // 0 = blocks are up , 1 = blocks are down now
-long timeToPickUp = 10000;
-long timeToDropDown = 1000;
+long timeToPickUp = 10 * 1000;
+long timeToDropDown = 1 * 1000;
 
 void setup() {
 
@@ -43,10 +43,10 @@ void setup() {
   pinMode(u2echoPin, INPUT);
   pinMode(u3trigPin, OUTPUT);
   pinMode(u3echoPin, INPUT);
-  pinMode(u4trigPin, OUTPUT);
-  pinMode(u4echoPin, INPUT);
-  pinMode(u5trigPin, OUTPUT);
-  pinMode(u5echoPin, INPUT);
+  // pinMode(u4trigPin, OUTPUT);
+  // pinMode(u4echoPin, INPUT);
+  // pinMode(u5trigPin, OUTPUT);
+  // pinMode(u5echoPin, INPUT);
 
 
   // connections to motor
@@ -161,46 +161,46 @@ int getU3Distance()
   Serial.println(" cm");
   return distance;
 }
-int getU4Distance()
-{
-  digitalWrite(u4trigPin, LOW);
-  delayMicroseconds(2);
+// int getU4Distance()
+// {
+//   digitalWrite(u4trigPin, LOW);
+//   delayMicroseconds(2);
 
-  digitalWrite(u4trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(u4trigPin, LOW);
+//   digitalWrite(u4trigPin, HIGH);
+//   delayMicroseconds(10);
+//   digitalWrite(u4trigPin, LOW);
 
-  long duration = pulseIn(u4echoPin, HIGH);
-  int distance = duration * 0.034 / 2;
-  Serial.print("Distance 3 🪨: ");
-  Serial.print(distance);
-  Serial.println(" cm");
-  return distance;
-}
-int getU5Distance()
-{
-  digitalWrite(u5trigPin, LOW);
-  delayMicroseconds(2);
+//   long duration = pulseIn(u4echoPin, HIGH);
+//   int distance = duration * 0.034 / 2;
+//   Serial.print("Distance 4 🪨: ");
+//   Serial.print(distance);
+//   Serial.println(" cm");
+//   return distance;
+// }
+// int getU5Distance()
+// {
+//   digitalWrite(u5trigPin, LOW);
+//   delayMicroseconds(2);
 
-  digitalWrite(u5trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(u5trigPin, LOW);
+//   digitalWrite(u5trigPin, HIGH);
+//   delayMicroseconds(10);
+//   digitalWrite(u5trigPin, LOW);
 
-  long duration = pulseIn(u5echoPin, HIGH);
-  int distance = duration * 0.034 / 2;
-  Serial.print("Distance 3 🪨: ");
-  Serial.print(distance);
-  Serial.println(" cm");
-  return distance;
-}
+//   long duration = pulseIn(u5echoPin, HIGH);
+//   int distance = duration * 0.034 / 2;
+//   Serial.print("Distance 5 🪨: ");
+//   Serial.print(distance);
+//   Serial.println(" cm");
+//   return distance;
+// }
 
 bool isPersonBlocking()
 {
   int dist1 = getU1Distance();
   int dist2 = getU2Distance();
   int dist3 = getU3Distance();
-  int dist4 = getU4Distance();
-  int dist5 = getU5Distance();
+  // int dist4 = getU4Distance();
+  // int dist5 = getU5Distance();
   if(dist1<100)
   {
     Serial.println("stopped because of sensor 1");
@@ -216,13 +216,15 @@ bool isPersonBlocking()
     Serial.println("stopped because of sensor 3");
     return true;
   }
-  if(dist4<100)
-  {
-    return true;
-  }
-  if(dist5<100)
-  {
-    return true;
-  }
+  // if(dist4<100)
+  // {
+  //   Serial.println("stopped because of sensor 4");
+  //   return true;
+  // }
+  // if(dist5<100)
+  // {
+  //   Serial.println("stopped because of sensor 5");
+  //   return true;
+  // }
   return false;
 }
