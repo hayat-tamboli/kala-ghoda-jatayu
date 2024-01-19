@@ -25,8 +25,8 @@ L298N motor2(m2enablePin, m2Pin1, m2Pin2);
 
 // used for full drop and full pull
 bool direction = 0;  // 0 = blocks are up , 1 = blocks are down now
-long timeToPickUp = 5000;
-long timeToDropDown = 5000;
+long timeToPickUp = 10000;
+long timeToDropDown = 1000;
 
 void setup() {
 
@@ -57,7 +57,18 @@ void setup() {
 }
 
 void loop() {
-
+  testingLoop()
+  // mainLoop();
+}
+void testingLoop()
+{
+  Serial.println("Testing loop 🌊🌊🌊");
+  pullBlocks();
+  delay(5000);
+  dropBlocks();
+}
+void mainLoop()
+{
   if (direction == 0) {
     if (isPersonBlocking()) {
       dropBlocks();
@@ -74,21 +85,21 @@ void loop() {
 }
 
 void dropBlocks() {
-  Serial.println("Throwing the blocks down");
+  Serial.println("Throwing the blocks down 🔽🔽🔽");
   motor1.backward();
-  motor2.backward();
-  delay(timeToPickUp);
+  // motor2.backward();
+  delay(timeToDropDown);
   motor1.stop();
-  motor2.stop();
+  // motor2.stop();
   direction = 1;
 }
 void pullBlocks() {
-  Serial.println("picking up the blocks");
+  Serial.println("picking up the blocks ⬆️⬆️⬆️");
   motor1.forward();
-  motor2.forward();
-  delay(timeToDropDown);
+  // motor2.forward();
+  delay(timeToPickUp);
   motor1.stop();
-  motor2.stop();
+  // motor2.stop();
   direction = 0;
 }
 
@@ -150,14 +161,17 @@ bool isPersonBlocking()
   int dist3 = getU3Distance();
   if(dist1<100)
   {
+    Serial.println("stopped because of sensor 1");
     return true;
   }
   if(dist2<100)
   {
+    Serial.println("stopped because of sensor 2");
     return true;
   }
   if(dist3<100)
   {
+    Serial.println("stopped because of sensor 3");
     return true;
   }
   return false;
