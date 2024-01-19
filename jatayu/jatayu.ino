@@ -7,9 +7,9 @@ int m1Pin1 = 50;       // Connect to IN1 on the motor driver
 int m1Pin2 = 48;       // Connect to IN2 on the motor driver
 int m1enablePin = 52;  // Connect to ENA on the motor driver
 
-// int m2Pin1 = 3;  // Connect to IN3 on the motor driver
-// int m2Pin2 = 4;  // Connect to IN4 on the motor driver
-// int m2enablePin = 2;  // Connect to ENB on the motor driver
+int m2Pin1 = 46;  // Connect to IN3 on the motor driver
+int m2Pin2 = 44;  // Connect to IN4 on the motor driver
+int m2enablePin = 42;  // Connect to ENB on the motor driver
 
 // ultrasonic sensor pins
 
@@ -21,7 +21,7 @@ const int u3trigPin = 26;
 const int u3echoPin = 27;
 
 L298N motor1(m1enablePin, m1Pin1, m1Pin2);
-// L298N motor2(m2enablePin, m2Pin1, m2Pin2);
+L298N motor2(m2enablePin, m2Pin1, m2Pin2);
 
 // used for full drop and full pull
 bool direction = 0;  // 0 = blocks are up , 1 = blocks are down now
@@ -45,15 +45,15 @@ void setup() {
   pinMode(m1Pin1, OUTPUT);
   pinMode(m1Pin2, OUTPUT);
   pinMode(m1enablePin, OUTPUT);
-  //   // pinMode(m2Pin1, OUTPUT);
-  //   // pinMode(m2Pin2, OUTPUT);
-  //   // pinMode(m2enablePin, OUTPUT);
+  pinMode(m2Pin1, OUTPUT);
+  pinMode(m2Pin2, OUTPUT);
+  pinMode(m2enablePin, OUTPUT);
   // Set initial speed
   motor1.setSpeed(100);
-  //   // motor2.setSpeed(100);
+  motor2.setSpeed(100);
 
   motor1.stop();
-  //   // motor2.stop();
+  motor2.stop();
 }
 
 void loop() {
@@ -76,15 +76,19 @@ void loop() {
 void dropBlocks() {
   Serial.println("Throwing the blocks down");
   motor1.backward();
+  motor2.backward();
   delay(timeToPickUp);
   motor1.stop();
+  motor2.stop();
   direction = 1;
 }
 void pullBlocks() {
   Serial.println("picking up the blocks");
   motor1.forward();
+  motor2.forward();
   delay(timeToDropDown);
   motor1.stop();
+  motor2.stop();
   direction = 0;
 }
 
