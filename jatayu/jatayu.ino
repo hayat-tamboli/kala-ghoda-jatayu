@@ -7,8 +7,8 @@ int m1Pin1 = 50;       // Connect to IN1 on the motor driver
 int m1Pin2 = 48;       // Connect to IN2 on the motor driver
 int m1enablePin = 52;  // Connect to ENA on the motor driver
 
-int m2Pin1 = 46;  // Connect to IN3 on the motor driver
-int m2Pin2 = 44;  // Connect to IN4 on the motor driver
+int m2Pin1 = 46;       // Connect to IN3 on the motor driver
+int m2Pin2 = 44;       // Connect to IN4 on the motor driver
 int m2enablePin = 42;  // Connect to ENB on the motor driver
 
 // ultrasonic sensor pins
@@ -31,6 +31,7 @@ L298N motor2(m2enablePin, m2Pin1, m2Pin2);
 bool direction = 0;  // 0 = blocks are up , 1 = blocks are down now
 long timeToPickUp = 10 * 1000;
 long timeToDropDown = 1 * 1000;
+bool testMode = false;
 
 void setup() {
 
@@ -65,26 +66,27 @@ void setup() {
 }
 
 void loop() {
-  testingLoop()
-  // mainLoop();
+  if (testMode) {
+    testingLoop();
+
+  } else {
+    mainLoop();
+  }
 }
-void testingLoop()
-{
+void testingLoop() {
   Serial.println("Testing loop 🌊🌊🌊");
   pullBlocks();
   delay(5000);
   dropBlocks();
 }
-void mainLoop()
-{
+void mainLoop() {
   if (direction == 0) {
     if (isPersonBlocking()) {
       dropBlocks();
     }
   }
   if (direction == 1) {
-    if (!isPersonBlocking())
-    {
+    if (!isPersonBlocking()) {
       Serial.println("waiting for 10 secs");
       delay(10000);
       pullBlocks();
@@ -95,24 +97,23 @@ void mainLoop()
 void dropBlocks() {
   Serial.println("Throwing the blocks down 🔽🔽🔽");
   motor1.backward();
-  // motor2.backward();
+  motor2.backward();
   delay(timeToDropDown);
   motor1.stop();
-  // motor2.stop();
+  motor2.stop();
   direction = 1;
 }
 void pullBlocks() {
   Serial.println("picking up the blocks ⬆️⬆️⬆️");
   motor1.forward();
-  // motor2.forward();
+  motor2.forward();
   delay(timeToPickUp);
   motor1.stop();
-  // motor2.stop();
+  motor2.stop();
   direction = 0;
 }
 
-int getU1Distance()
-{
+int getU1Distance() {
   digitalWrite(u1trigPin, LOW);
   delayMicroseconds(2);
 
@@ -128,8 +129,7 @@ int getU1Distance()
   return distance;
 }
 
-int getU2Distance()
-{
+int getU2Distance() {
   digitalWrite(u2trigPin, LOW);
   delayMicroseconds(2);
 
@@ -145,8 +145,7 @@ int getU2Distance()
   return distance;
 }
 
-int getU3Distance()
-{
+int getU3Distance() {
   digitalWrite(u3trigPin, LOW);
   delayMicroseconds(2);
 
@@ -194,25 +193,21 @@ int getU3Distance()
 //   return distance;
 // }
 
-bool isPersonBlocking()
-{
+bool isPersonBlocking() {
   int dist1 = getU1Distance();
   int dist2 = getU2Distance();
   int dist3 = getU3Distance();
   // int dist4 = getU4Distance();
   // int dist5 = getU5Distance();
-  if(dist1<100)
-  {
+  if (dist1 < 100) {
     Serial.println("stopped because of sensor 1");
     return true;
   }
-  if(dist2<100)
-  {
+  if (dist2 < 100) {
     Serial.println("stopped because of sensor 2");
     return true;
   }
-  if(dist3<100)
-  {
+  if (dist3 < 100) {
     Serial.println("stopped because of sensor 3");
     return true;
   }
