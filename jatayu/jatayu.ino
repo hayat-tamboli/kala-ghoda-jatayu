@@ -31,7 +31,7 @@ L298N motor2(m2enablePin, m2Pin1, m2Pin2);
 bool direction = 0;  // 0 = blocks are up , 1 = blocks are down now
 long timeToPickUp = 10 * 1000;
 long timeToDropDown = 1 * 1000;
-bool testMode = false;
+bool testMode = true;
 
 void setup() {
 
@@ -96,8 +96,8 @@ void mainLoop() {
 
 void dropBlocks() {
   Serial.println("Throwing the blocks down 🔽🔽🔽");
-  motor1.backward();
-  motor2.backward();
+  motor1.forward();
+  motor2.forward();
   delay(timeToDropDown);
   motor1.stop();
   motor2.stop();
@@ -105,8 +105,8 @@ void dropBlocks() {
 }
 void pullBlocks() {
   Serial.println("picking up the blocks ⬆️⬆️⬆️");
-  motor1.forward();
-  motor2.forward();
+  motor1.backward();
+  motor2.backward();
   delay(timeToPickUp);
   motor1.stop();
   motor2.stop();
