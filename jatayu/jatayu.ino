@@ -83,6 +83,7 @@ void loop() {
     mainLoop();
   }
 }
+
 void testingLoop() {
   Serial.println("🌊🌊🌊");
 checkpin1:
@@ -233,16 +234,16 @@ bool isPersonBlocking() {
     Serial.println("stopped because of sensor 1");
     return true;
   }
-  // int dist2 = getU2Distance();
-  // if (dist2 < limitToDetect) {
-  //   Serial.println("stopped because of sensor 2");
-  //   return true;
-  // }
-  // int dist3 = getU3Distance();
-  // if (dist3 < limitToDetect) {
-  //   Serial.println("stopped because of sensor 3");
-  //   return true;
-  // }
+  int dist2 = getU2Distance();
+  if (dist2 < limitToDetect) {
+    Serial.println("stopped because of sensor 2");
+    return true;
+  }
+  int dist3 = getU3Distance();
+  if (dist3 < limitToDetect) {
+    Serial.println("stopped because of sensor 3");
+    return true;
+  }
   // int dist4 = getU4Distance();
   // if(dist4<limitToDetect)
   // {
