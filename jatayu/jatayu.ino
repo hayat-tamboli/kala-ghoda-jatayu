@@ -23,6 +23,9 @@ const int u3echoPin = 27;
 // const int u4echoPin = 29;
 // const int u5trigPin = 30;
 // const int u5echoPin = 31;
+const int switchPin = 19;
+const int pushButtonPin1 = 21;
+const int pushButtonPin2 = 20;
 
 L298N motor1(m1enablePin, m1Pin1, m1Pin2);
 L298N motor2(m2enablePin, m2Pin1, m2Pin2);
@@ -32,6 +35,9 @@ bool direction = 0;  // 0 = blocks are up , 1 = blocks are down now
 long timeToPickUp = 10 * 1000;
 long timeToDropDown = 1 * 1000;
 bool testMode = true;
+int pushButtonPinState1 = 0;
+int pushButtonPinState2 = 0;
+int limitToDetect = 100;
 
 void setup() {
 
@@ -48,6 +54,9 @@ void setup() {
   // pinMode(u4echoPin, INPUT);
   // pinMode(u5trigPin, OUTPUT);
   // pinMode(u5echoPin, INPUT);
+  pinMode(pushButtonPin1, INPUT_PULLUP);
+  pinMode(pushButtonPin2, INPUT_PULLUP);
+  pinMode(switchPin, INPUT);
 
 
   // connections to motor
@@ -66,20 +75,45 @@ void setup() {
 }
 
 void loop() {
+  testMode = digitalRead(switchPin);
+  Serial.println(testMode);
   if (testMode) {
     testingLoop();
-
   } else {
     mainLoop();
   }
 }
 void testingLoop() {
-  Serial.println("Testing loop 🌊🌊🌊");
-  pullBlocks();
-  delay(5000);
-  dropBlocks();
+  Serial.println("🌊🌊🌊");
+checkpin1:
+  pushButtonPinState1 = digitalRead(pushButtonPin1);
+  if (pushButtonPinState1 == LOW) {
+    Serial.println("🌈");
+    motor1.forward();
+    motor2.forward();
+    delay(400);
+    goto checkpin1;
+  } else {
+    Serial.println("🔴");
+    motor1.stop();
+    motor2.stop();
+  }
+checkpin2:
+  pushButtonPinState2 = digitalRead(pushButtonPin2);
+  if (pushButtonPinState2 == LOW) {
+    Serial.println("🌈🌈");
+    motor1.backward();
+    motor2.backward();
+    goto checkpin2;
+  } else {
+    Serial.println("🔴🔴");
+    motor1.stop();
+    motor2.stop();
+  }
+  delay(50);
 }
 void mainLoop() {
+  Serial.println("✨✨✨");
   if (direction == 0) {
     if (isPersonBlocking()) {
       dropBlocks();
@@ -195,28 +229,28 @@ int getU3Distance() {
 
 bool isPersonBlocking() {
   int dist1 = getU1Distance();
-  int dist2 = getU2Distance();
-  int dist3 = getU3Distance();
-  // int dist4 = getU4Distance();
-  // int dist5 = getU5Distance();
-  if (dist1 < 100) {
+  if (dist1 < limitToDetect) {
     Serial.println("stopped because of sensor 1");
     return true;
   }
-  if (dist2 < 100) {
-    Serial.println("stopped because of sensor 2");
-    return true;
-  }
-  if (dist3 < 100) {
-    Serial.println("stopped because of sensor 3");
-    return true;
-  }
-  // if(dist4<100)
+  // int dist2 = getU2Distance();
+  // if (dist2 < limitToDetect) {
+  //   Serial.println("stopped because of sensor 2");
+  //   return true;
+  // }
+  // int dist3 = getU3Distance();
+  // if (dist3 < limitToDetect) {
+  //   Serial.println("stopped because of sensor 3");
+  //   return true;
+  // }
+  // int dist4 = getU4Distance();
+  // if(dist4<limitToDetect)
   // {
   //   Serial.println("stopped because of sensor 4");
   //   return true;
   // }
-  // if(dist5<100)
+  // int dist5 = getU5Distance();
+  // if(dist5<limitToDetect)
   // {
   //   Serial.println("stopped because of sensor 5");
   //   return true;
